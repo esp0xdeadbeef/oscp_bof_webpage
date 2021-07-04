@@ -15,7 +15,7 @@ api = Flask(__name__)
 cache.init_app(app=api,
                config={
                    "CACHE_TYPE": "filesystem",
-                   'CACHE_DIR': '/mnt/hacking/OSCP/exam/step_2/cache',
+                   'CACHE_DIR': '/tmp/cache',
                    "CACHE_DEFAULT_TIMEOUT": 9999999999,
                    "DEBUG": True,
                    "doesntexist": "test"
