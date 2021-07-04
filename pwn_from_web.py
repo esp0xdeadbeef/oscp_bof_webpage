@@ -107,7 +107,7 @@ def make_exploit():
         pass
 
 
-with open('ip', 'r') as f:
+with open('ip_target', 'r') as f:
     cache.set("ip", f.read().strip())
 cache.set("port", "1337")
 cache.set("pre_msg", "OVERFLOW1 ")
