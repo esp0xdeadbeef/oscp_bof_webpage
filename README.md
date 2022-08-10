@@ -15,6 +15,9 @@ To run it:
 git clone https://github.com/esp0xdeadbeef/oscp_bof_webpage
 cd oscp_bof_webpage
 chmod +x pwn_from_web.py
+python3 -m venv venv
+source venv/bin/activate
+python3 -m pip install -r requirements.txt
 #(get your <b>*adapter*</b> name you want to bind it to) with `ip a` or `ifconfig`
 rev_shell_adapter_name='tun0'
 rev_shell_port=443
