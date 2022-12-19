@@ -494,10 +494,10 @@ def download_bad_chars():
 @api.route("/download_payload")
 def download_payload():
     create_payload()
-    with open('payload.txt', 'wb') as f:
-        payload = cache.get('pre_msg').encode()
+    with open('payload.txt', 'w') as f:
+        payload = cache.get('pre_msg')
         payload += cache.get('payload')
-        payload += cache.get('port_msg').encode()
+        payload += cache.get('port_msg')
         f.write(payload)
     return send_file("payload.txt", as_attachment=True)
 
