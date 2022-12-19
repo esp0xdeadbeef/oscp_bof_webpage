@@ -495,9 +495,9 @@ def download_bad_chars():
 def download_payload():
     create_payload()
     with open('payload.txt', 'wb') as f:
-        payload = cache.get('pre_msg')
+        payload = cache.get('pre_msg').encode()
         payload += cache.get('payload')
-        payload += cache.get('port_msg')
+        payload += cache.get('port_msg').encode()
         f.write(payload)
     return send_file("payload.txt", as_attachment=True)
 
