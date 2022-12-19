@@ -491,7 +491,7 @@ def download_bad_chars():
 
 
 @api.route("/download_payload")
-def send_payload_web():
+def download_payload():
     create_payload()
     with open('payload.txt', 'wb') as f:
         f.write(cache.get('payload'))
