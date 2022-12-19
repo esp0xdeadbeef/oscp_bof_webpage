@@ -478,6 +478,7 @@ def home():
     create_payload()
     menu += cache_get_without_error('payload', 'payload: ')
     menu += single_button('send_payload_web')
+    menu += render_template('download_payload.html')
     menu += "</body></html>"
     return menu
 
