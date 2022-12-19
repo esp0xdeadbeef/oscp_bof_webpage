@@ -503,7 +503,7 @@ def download_payload():
     with open('payload.txt', 'w') as f:
         payload = cache.get('pre_msg')
         payload += cache.get('payload').decode('latin-1')
-        payload += cache.get('port_msg')
+        payload += cache.get('post_msg')
         f.write(payload)
     return send_file("payload.txt", as_attachment=True)
 
