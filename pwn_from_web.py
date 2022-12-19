@@ -362,9 +362,15 @@ def cache_get_without_error(s, pre_string="", post_string=""):
 
 def create_payload():
     try:
+        cache.get('pre_msg')
         pass
     except:
+        cache.set('pre_msg', b'')
+    try:
+        cache.get('post_msg')
         pass
+    except:
+        cache.set('post_msg', b'')
 
     payload = b""
     try:
