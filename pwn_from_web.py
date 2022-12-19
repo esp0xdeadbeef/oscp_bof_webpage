@@ -500,13 +500,12 @@ def download_bad_chars():
 @api.route("/download_payload")
 def download_payload():
     create_payload()
-    with open('payload.txt', 'w') as f:
-        payload = cache.get('pre_msg')
-        payload += cache.get('payload').decode('latin-1')
-        payload += cache.get('post_msg')
+    with open('payload.txt', 'wb') as f:
+        payload = cache.get('pre_msg').encode('latin-1')
+        payload += cache.get('payload')
+        payload += cache.get('post_msg').encode('latin-1')
         f.write(payload)
     return send_file("payload.txt", as_attachment=True)
-
 
 cache.set('lport', args.lport)
 api.run(host="0.0.0.0", port=5000)
